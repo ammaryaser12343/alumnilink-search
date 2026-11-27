@@ -23,7 +23,7 @@ function getServiceKey() {
 
 // Returns { status, data } for any 2xx or 4xx answer.
 // Throws ServiceUnavailableError for timeouts, network errors, 5xx and 401.
-async function callService(service, baseUrl, path) {
+async function callService(service, baseUrl, path, headers = {}) {
   if (!baseUrl) {
     throw new ServiceUnavailableError(service, 'URL is not configured');
   }
@@ -34,7 +34,8 @@ async function callService(service, baseUrl, path) {
   let response;
   try {
     response = await fetch(new URL(path, baseUrl), {
-      headers: { 'X-Service-Key': serviceKey },
+      headers: { ...headers, 'X-Service-Key': serviceKey },
+      redirect: 'error',
       signal: controller.signal
     });
   } catch (error) {
@@ -88,13 +89,14 @@ async function getUserStatus(userId) {
 // ---- Profile (Ahmed): contact email, only asked for after a request is accepted ----
 
 // Returns the email text, or null when the profile has none.
-async function getProfileContact(profileId) {
+async function getProfileContact(profileId, requestId, userToken) {
   const { status, data } = await callService(
     'Profile',
     process.env.PROFILE_API_URL,
-    `/internal/profiles/${encodeURIComponent(profileId)}/contact`
+    `/internal/profiles/${encodeURIComponent(profileId)}/contact?requestId=${encodeURIComponent(requestId)}`,
+    { 'X-User-Token': userToken }
   );
-  if (status === 200 && data) {
+  if (status === 200 && data?.profileId === profileId) {
     return data.contactEmail || null;
   }
   if (status === 404) {

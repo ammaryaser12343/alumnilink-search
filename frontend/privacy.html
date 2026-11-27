@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Privacy | AlumniLink</title>
+    <link rel="icon" type="image/png" href="alumnilink-badge.png">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/profile.css" />
+    <script defer src="js/config.js"></script>
+    <script defer src="js/nav.js"></script>
+    <script defer src="js/profile-config.js"></script>
+    <script defer src="js/profile-client.js"></script>
+    <script defer src="js/privacy.js"></script>
+    <link rel="stylesheet" href="css/theme.css" />
+    <script src="js/theme.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1><a class="site-brand" href="index.html" aria-label="AlumniLink home">AlumniLink</a></h1>
+      <nav aria-label="Main">
+        <a href="index.html">Search</a>
+        <a href="requests.html">Contact requests</a>
+        <a href="profile.html">My profile</a>
+        <a href="privacy.html" aria-current="page">Privacy</a>
+        <button id="logout" type="button">Sign out</button>
+      </nav>
+    </header>
+    <main class="settings-page">
+      <header class="settings-heading">
+        <h2>Privacy</h2>
+      </header>
+      <p class="settings-notice" id="status" role="status"></p>
+      <div class="settings-grid privacy-grid">
+        <form class="settings-panel" id="privacy" hidden>
+          <div class="settings-panel-body">
+            <fieldset class="settings-fieldset">
+              <legend>What people can see</legend>
+              <p class="settings-help">Turn on the details you want to share in the directory.</p>
+              <div class="privacy-fields">
+                <label><span>Graduation year</span><input type="checkbox" name="graduation_year" /></label>
+                <label><span>Company</span><input type="checkbox" name="company" /></label>
+                <label><span>Industry</span><input type="checkbox" name="industry" /></label>
+                <label><span>Location</span><input type="checkbox" name="location" /></label>
+                <label><span>Bio</span><input type="checkbox" name="bio" /></label>
+                <label><span>Skills</span><input type="checkbox" name="skills" /></label>
+              </div>
+            </fieldset>
+            <p class="settings-notice" id="details-status" role="status"></p>
+          </div>
+          <div class="settings-panel-footer settings-actions">
+            <button type="submit">Save details</button>
+            <button id="select-all-privacy" class="secondary" type="button">Select all</button>
+          </div>
+        </form>
+        <form class="settings-panel" id="photo-visibility" hidden>
+          <div class="settings-panel-body">
+            <fieldset class="settings-fieldset">
+              <legend>Who can see my photo?</legend>
+              <p class="settings-help">Only signed-in members can see a shared photo.</p>
+              <div class="photo-audiences">
+                <label class="photo-audience">
+                  <input type="radio" name="audience" value="private" checked disabled />
+                  <span>Only me</span>
+                </label>
+                <label class="photo-audience">
+                  <input type="radio" name="audience" value="students" disabled />
+                  <span>Students only</span>
+                </label>
+                <label class="photo-audience">
+                  <input type="radio" name="audience" value="alumni" disabled />
+                  <span>Alumni only</span>
+                </label>
+                <label class="photo-audience">
+                  <input type="radio" name="audience" value="directory" disabled />
+                  <span>Everyone in the directory</span>
+                </label>
+              </div>
+            </fieldset>
+            <p class="settings-notice" id="photo-visibility-status" role="status"></p>
+          </div>
+          <div class="settings-panel-footer settings-actions">
+            <button type="submit" disabled>Save photo visibility</button>
+            <a class="settings-link" href="profile.html#profile-photo">Change photo</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>

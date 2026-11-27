@@ -4,64 +4,128 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AlumniLink | Search Alumni</title>
+  <link rel="icon" type="image/png" href="alumnilink-badge.png">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header class="site-header">
-    <h1>AlumniLink</h1>
+    <h1><a class="site-brand" href="index.html" aria-label="AlumniLink home">AlumniLink</a></h1>
     <nav aria-label="Main">
       <a href="index.html" aria-current="page">Search</a>
       <a href="requests.html">Contact requests</a>
-      <!-- Ahmed: add links to the login and profile pages here. Daniel: admin link. -->
+      <a href="profile.html">My profile</a>
+      <a href="privacy.html">Privacy</a>
     </nav>
   </header>
 
   <main>
     <section aria-labelledby="search-heading">
-      <h2 id="search-heading">Search the alumni directory</h2>
+      <!-- Top: the main search bar, recent searches and one-click industries -->
+      <div class="search-hero">
+        <h2 id="search-heading">Find alumni</h2>
+        <p class="page-intro">Search graduates by name or skill, then narrow down by place, industry or year.
+          Each alum decides which details are shown.</p>
+        <!-- Filled by search.js, e.g. "23 alumni · 4 industries · 12 cities" -->
+        <p id="directory-stats" class="directory-stats" hidden></p>
 
-      <form id="search-form" class="search-form" novalidate>
-        <label>Name or skill
-          <input type="text" id="q" name="q" maxlength="50" placeholder="e.g. python or Omar">
-        </label>
-        <label>Location
-          <input type="text" id="location" name="location" maxlength="100" placeholder="e.g. Cairo">
-        </label>
-        <label>Industry
-          <select id="industry" name="industry">
-            <option value="">Any industry</option>
-          </select>
-        </label>
-        <label>Graduation year
-          <input type="number" id="gradYear" name="gradYear" min="1950" step="1" placeholder="e.g. 2020">
-        </label>
-        <label>Near (city)
-          <input type="text" id="near" name="near" maxlength="100" placeholder="e.g. Alexandria">
-        </label>
-        <label>Within (km)
-          <select id="radiusKm" name="radiusKm">
-            <option value="">50 km</option>
-            <option value="10">10 km</option>
-            <option value="25">25 km</option>
-            <option value="100">100 km</option>
-            <option value="250">250 km</option>
-          </select>
-        </label>
-        <label>Sort by
-          <select id="sort" name="sort">
-            <!-- Empty value lets the API choose: closest first with Near, otherwise A to Z. -->
-            <option value="">Default</option>
-            <option value="name">Name (A to Z)</option>
-            <option value="newest">Newest graduates</option>
-            <option value="oldest">Oldest graduates</option>
-            <option value="distance">Closest first (needs Near)</option>
-          </select>
-        </label>
-        <button type="submit">Search</button>
-      </form>
+        <!-- These controls sit outside the form but belong to it through form="search-form" -->
+        <div class="search-bar" role="search">
+          <label for="q" class="visually-hidden">Name or skill</label>
+          <span class="search-input">
+            <input form="search-form" type="search" id="q" name="q" maxlength="50" autocomplete="off"
+                   aria-keyshortcuts="/" placeholder="Search by name or skill, e.g. python or Omar">
+            <!-- Reminder that "/" jumps to the search box (hidden on phones and while typing) -->
+            <kbd class="key-hint" aria-hidden="true">/</kbd>
+          </span>
+          <button form="search-form" type="submit">Search</button>
+        </div>
 
-      <p id="message" class="message" role="status" aria-live="polite"></p>
-      <div id="results" class="results"></div>
+        <div id="recent-searches" class="chip-row" hidden>
+          <span class="chip-label">Recent</span>
+          <span id="recent-list" class="chip-list"></span>
+          <button type="button" id="clear-recent" class="link-button">Clear</button>
+        </div>
+        <div id="industry-chips" class="chip-row" hidden>
+          <span class="chip-label">Industries</span>
+          <span id="industry-list" class="chip-list"></span>
+        </div>
+      </div>
+
+      <!-- Below: filters on the left, results on the right -->
+      <div class="search-layout">
+        <aside class="filters" aria-labelledby="filters-heading">
+          <!-- A <details> box: always open on wide screens, folded behind a "Filters" button on phones -->
+          <details id="filters-box" open>
+          <summary><h3 id="filters-heading">Filters</h3></summary>
+          <form id="search-form" class="search-form" novalidate>
+            <label>Location
+              <input type="text" id="location" name="location" maxlength="100" placeholder="e.g. Cairo">
+            </label>
+            <label>Industry
+              <select id="industry" name="industry">
+                <option value="">Any industry</option>
+              </select>
+            </label>
+            <label>Graduation year
+              <input type="number" id="gradYear" name="gradYear" min="1950" step="1" placeholder="e.g. 2020">
+            </label>
+
+            <fieldset class="near-me">
+              <legend>Near me</legend>
+              <label>City
+                <input type="text" id="near" name="near" maxlength="100" placeholder="e.g. Alexandria">
+              </label>
+              <label>Within
+                <select id="radiusKm" name="radiusKm">
+                  <option value="">50 km</option>
+                  <option value="10">10 km</option>
+                  <option value="25">25 km</option>
+                  <option value="100">100 km</option>
+                  <option value="250">250 km</option>
+                </select>
+              </label>
+            </fieldset>
+
+            <div class="filter-buttons">
+              <button type="submit">Apply filters</button>
+              <button type="button" id="clear-filters" class="secondary">Clear all</button>
+            </div>
+          </form>
+          </details>
+        </aside>
+
+        <div class="results-column">
+          <div class="results-header">
+            <p id="message" class="message" role="status" aria-live="polite"></p>
+            <label class="sort-control">Sort by
+              <select form="search-form" id="sort" name="sort">
+                <!-- Empty value lets the API choose: closest first with Near, otherwise A to Z. -->
+                <option value="">Best match</option>
+                <option value="name">Name (A to Z)</option>
+                <option value="newest">Newest graduates</option>
+                <option value="oldest">Oldest graduates</option>
+                <option value="distance">Closest first (needs Near me)</option>
+              </select>
+            </label>
+          </div>
+          <!-- The filters in use, each with a x button that removes it -->
+          <div id="active-filters" class="active-filters" aria-label="Filters in use" hidden></div>
+          <div id="results" class="results" aria-live="off"></div>
+
+          <nav class="pager" aria-label="Result pages">
+            <button type="button" id="prev-page" class="secondary" disabled>Previous</button>
+            <span id="page-info"></span>
+            <button type="button" id="next-page" class="secondary" disabled>Next</button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- Profile view: opened by clicking an alum's name or photo, filled by search.js -->
+      <dialog id="profile-dialog" class="profile-dialog" aria-labelledby="profile-name">
+        <div id="profile-view"></div>
+      </dialog>
 
       <dialog id="contact-dialog" aria-labelledby="contact-heading">
         <form id="contact-form" method="dialog" novalidate>
@@ -75,17 +139,13 @@
           </div>
         </form>
       </dialog>
-
-      <nav class="pager" aria-label="Result pages">
-        <button type="button" id="prev-page" disabled>Previous</button>
-        <span id="page-info"></span>
-        <button type="button" id="next-page" disabled>Next</button>
-      </nav>
     </section>
   </main>
 
   <script src="js/config.js" defer></script>
   <script src="js/api.js" defer></script>
+  <script src="js/nav.js" defer></script>
+  <script src="js/profile-config.js" defer></script>
   <script src="js/search.js" defer></script>
 </body>
-</html>
+</html>

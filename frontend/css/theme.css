@@ -1,0 +1,59 @@
+/* Dark mode. Owner: Daniel.
+   Only the colour names from css/styles.css (Ammar's theme) get dark values,
+   so every page follows without changing anyone's stylesheet.
+   js/theme.js sets <html data-theme="dark"> before the page is drawn. */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;                 /* dark scrollbars and form controls */
+  --blue: #38bdf8;                    /* light blue: readable on dark backgrounds */
+  --blue-dark: #7dd3fc;               /* hover (lighter in dark mode) */
+  --blue-soft: #0c2d48;               /* dark blue fills */
+  --ink: #f1f5f9;                     /* headings */
+  --text: #e2e8f0;                    /* normal text */
+  --muted: #94a3b8;                   /* secondary text */
+  --bg: #0b1220;                      /* page background */
+  --card: #111a2e;                    /* cards, header, forms */
+  --border: #1e293b;
+  --field: #334155;                   /* form field borders */
+  --soft: #1a2438;                    /* table headers, grey buttons */
+  --good-bg: #052e1a;  --good: #86efac;
+  --bad-bg: #3b0d0d;   --bad: #fca5a5;
+  --wait-bg: #3a2a05;  --wait: #fcd34d;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 6px 20px rgba(0, 0, 0, 0.55);
+}
+
+/* Filled buttons are light blue in dark mode, so their text becomes dark.
+   :where() keeps this rule weak, so outlined buttons keep their own colours. */
+:where([data-theme="dark"]) button { color: #04121f; }
+[data-theme="dark"] .tabs button[aria-selected="true"],
+[data-theme="dark"] .chip[aria-pressed="true"] { color: #04121f; }
+
+/* The few places where styles.css writes a light colour directly */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea,
+[data-theme="dark"] .chip { background-color: var(--card); }
+[data-theme="dark"] .filter-pill:hover,
+[data-theme="dark"] .tag-button:hover { background: #123a5c; }
+[data-theme="dark"] dialog { background: var(--card); color: var(--text); }
+
+/* Profile and Privacy pages: the light colours written directly in profile.css */
+[data-theme="dark"] .profile-photo-stage { background: var(--soft); }
+[data-theme="dark"] .photo-frame { border-color: var(--card); background: var(--field); }
+[data-theme="dark"] .privacy-fields input:not(:checked) { border-color: var(--field); background: var(--soft); }
+[data-theme="dark"] .photo-audience:has(input:checked) { border-color: #164e72; background: var(--blue-soft); }
+
+/* The small moon/sun button at the right end of the top menu */
+.site-header nav .theme-toggle {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  margin-left: 0.5rem;
+  border: 1px solid var(--field);
+  background: transparent;
+  color: var(--ink);
+  font-size: 1.15rem;
+  line-height: 1;
+}
+.site-header nav .theme-toggle:hover { background: var(--soft); border-color: var(--blue); }

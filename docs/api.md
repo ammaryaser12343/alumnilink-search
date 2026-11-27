@@ -42,11 +42,11 @@ function behind API Gateway; the routes and answers are the same.
 
 | Method | Endpoint | Purpose | Success | Errors | Roles |
 |---|---|---|---|---|---|
-| GET | /api/alumni | Search, filter, near-me, sort, paginate | 200 | 400, 401, 403, 429, 503 | Alumni, Student, Admin |
+| GET | /api/alumni | Search, filter, near-me, sort, paginate. Cards respect field visibility for everyone except admins. | 200 | 400, 401, 403, 429, 503 | Alumni, Student, Admin |
 | GET | /api/alumni/filters | Filter options built from visible data only | 200 | 400, 401, 403, 429, 503 | Alumni, Student, Admin |
 | GET | /api/alumni/:id | Visible fields of one profile (owner and admin also see hidden ones) | 200 | 401, 403, 404, 429, 503 | Alumni, Student, Admin |
-| POST | /api/contact-requests | Ask an alum for contact details | 201 | 400, 401, 403, 404, 409, 413, 429, 503 | Student |
-| GET | /api/contact-requests | Student: sent. Alum: received | 200 | 401, 403, 429, 503 | Student, Alumni |
+| POST | /api/contact-requests | Ask an alum for contact details (never your own profile: 400 `CANNOT_CONTACT_SELF`) | 201 | 400, 401, 403, 404, 409, 413, 429, 503 | Student, Alumni |
+| GET | /api/contact-requests | Student: `requests` = sent. Alum: `requests` = received, `sent` = sent to other alumni | 200 | 401, 403, 429, 503 | Student, Alumni |
 | PATCH | /api/contact-requests/:id | Accept or decline (own requests only) | 200 | 400, 401, 403, 404, 409, 429, 503 | Alumni |
 
 Query parameters for `GET /api/alumni` (any other parameter answers 400):
@@ -105,11 +105,10 @@ Missing or wrong key: 401 `SERVICE_KEY_INVALID`. Every call times out after 3 se
 | Caller -> Callee | Method | Endpoint | Answer |
 |---|---|---|---|
 | Profile -> Search | POST | /internal/locations/resolve `{ "location": "Cairo" }` | 200 `{ "location": { "name", "country", "latitude", "longitude" }, "cached": true }`, 400, 404 `LOCATION_NOT_FOUND`, 503 `GEOCODING_UNAVAILABLE` |
-| Search -> Identity | GET | /internal/users/:id/status | 200 `{ "id", "role", "accountStatus" }`, 404 if the user does not exist |
-| Search -> Profile | GET | /internal/profiles/:id/contact (`:id` = profile id) | 200 `{ "profileId", "contactEmail" }` (`contactEmail` may be null), 404 if no profile |
+| Search or Profile -> Identity | GET | /internal/users/:id/status | 200 `{ "id", "role", "accountStatus" }`, 404 if the user does not exist |
+| Search -> Profile | GET | /internal/profiles/:id/contact?requestId=:requestId with X-User-Token | 200 `{ "profileId", "contactEmail" }` (email may be null), 401 missing credentials, 403 if the request does not grant access |
 
-Search already calls the last two with exactly these shapes. Until they exist,
-`search-api/scripts/mock-services.js` stands in for them locally.
+Search sends the original sender's token (Student or Alumni) in X-User-Token and the accepted request ID in the query. Profile checks the sender, the target profile and the current accepted status before returning contact details. The standalone Search demo can use `search-api/scripts/mock-services.js`.
 
 ## Administration backend (Daniel), local port 3003
 

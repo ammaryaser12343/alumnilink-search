@@ -1,0 +1,57 @@
+{
+  "scope": "Profile and Privacy. The deployed evidence is from the original local deployment. The current shared-token contract is verified separately in local tests.",
+  "threats": [
+    {
+      "threat": "A Student calls Alumni profile operations",
+      "control": "Signed user token verified by shared/auth.js plus backend role check",
+      "test": "Student role denial"
+    },
+    {
+      "threat": "An Alumni supplies a different owner or profile ID",
+      "control": "Owner taken from token sub, supported body field allowlist and /me routes",
+      "test": "Reject client-selected owner"
+    },
+    {
+      "threat": "Search reveals email for a pending or unrelated request",
+      "control": "Search credential and delegated signed Student token, matching accepted consent in database",
+      "test": "Pending contact denied; Different Student denied"
+    },
+    {
+      "threat": "A suspended user reuses an unexpired token",
+      "control": "Live Identity eligibility lookup before protected actions and contact disclosure",
+      "test": "Existing suspended token denied"
+    },
+    {
+      "threat": "Locations fails during a multi-field edit",
+      "control": "Bounded HTTP timeout before the profile transaction, no partial profile save",
+      "test": "Location outage preserves profile"
+    },
+    {
+      "threat": "Runtime database compromise exposes identity passwords or changes status",
+      "control": "Separate database login with column-scoped identity reads and no users updates",
+      "test": "Restricted runtime database privileges"
+    },
+    {
+      "threat": "A client injects SQL or stored scripts through profile input",
+      "control": "Parameterized SQL, input lengths and types, browser input values/textContent",
+      "evidence": "profile-api/services/profileStore.js; profile-api/validation.js; frontend/js/profile.js",
+      "limitation": "Dedicated SQL injection and browser stored-XSS probes remain to be added to the group security pack"
+    },
+    {
+      "threat": "A hidden field is inferred through directory filters",
+      "control": "Privacy choices default hidden, explicit owner-only updates",
+      "enforcementOwner": "Ammar",
+      "limitation": "Actual directory response and filter enforcement awaits Ammar's code"
+    },
+    {
+      "threat": "Credentials leak through frontend or logs",
+      "control": "Ignored environment files, public-only S3 configuration, sanitized status/request-ID logging",
+      "evidence": "Runtime secrets excluded from S3 uploads and log payloads"
+    }
+  ],
+  "operationalLimits": [
+    "Floci uses local HTTP and simulated IAM, so cloud TLS and encryption-at-rest are deployment controls to document separately.",
+    "Actual teammate endpoint contracts remain unconfirmed.",
+    "The final report must include each student's own evidence and contribution statement."
+  ]
+}

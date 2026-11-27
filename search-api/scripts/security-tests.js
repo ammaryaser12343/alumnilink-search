@@ -5,7 +5,7 @@
 // Needs: the seed data (docs/seed.sql), .env with DATABASE_URL, TOKEN_SECRET, SERVICE_KEY,
 // and the Identity/Profile endpoints running (or npm run mock-services).
 // It sends requests as the seed students and alumni and deletes the contact
-// requests those seed students made when it finishes.
+// requests those seed accounts made when it finishes.
 require('dotenv').config();
 
 const crypto = require('crypto');
@@ -69,7 +69,7 @@ async function main() {
   if (!alumProfile || !otherAlum || !suspended || alumHidden.length === 0) {
     throw new Error('Seed data not found. Run docs/schema.sql and docs/seed.sql first.');
   }
-  await sql`DELETE FROM contact_requests WHERE student_user_id IN (${STUDENT_ID}, ${STUDENT2_ID})`;
+  await sql`DELETE FROM contact_requests WHERE student_user_id IN (${STUDENT_ID}, ${STUDENT2_ID}, ${otherAlum.userId})`;
 
   const T = {
     student: signToken({ sub: STUDENT_ID, role: 'student' }),
@@ -98,8 +98,13 @@ async function main() {
   r = await call('GET', '/api/alumni', { token: signToken({ sub: suspended.id, role: suspended.role }) });
   check('ST-06', 'suspended account -> 403 ACCOUNT_INACTIVE', r.status === 403 && r.data.error.code === 'ACCOUNT_INACTIVE', r);
   const message = 'Hello, I am a CS student interested in your field.';
-  r = await call('POST', '/api/contact-requests', { token: T.otherAlum, body: { alumniId: alumProfile.id, message } });
-  check('ST-07', 'alum sends a contact request -> 403', r.status === 403, r);
+  // Students and alumni may send; an admin may not, and nobody may ask their own profile.
+  const byAdmin = await call('POST', '/api/contact-requests', { token: T.admin, body: { alumniId: alumProfile.id, message } });
+  const toSelf = await call('POST', '/api/contact-requests', { token: T.alum, body: { alumniId: alumProfile.id, message } });
+  const alumToAlum = await call('POST', '/api/contact-requests', { token: T.otherAlum, body: { alumniId: alumProfile.id, message } });
+  check('ST-07', 'admin sends -> 403; alum asks own profile -> 400; alum asks another alum -> 201',
+    byAdmin.status === 403 && toSelf.status === 400 && toSelf.data.error.code === 'CANNOT_CONTACT_SELF' && alumToAlum.status === 201,
+    { byAdmin: byAdmin.status, toSelf: toSelf.status, alumToAlum: alumToAlum.status });
   r = await call('POST', '/api/contact-requests', { token: T.student, body: { alumniId: alumProfile.id, message } });
   const requestId = r.data && r.data.id;
   r = await call('PATCH', `/api/contact-requests/${requestId}`, { token: T.student, body: { status: 'accepted' } });
@@ -111,7 +116,8 @@ async function main() {
   r = await call('PATCH', `/api/contact-requests/${requestId}`, { token: T.otherAlum, body: { status: 'accepted' } });
   check('ST-10', 'alum answers a request sent to another alum -> 404', r.status === 404 && r.data.error.code === 'REQUEST_NOT_FOUND', r);
   r = await call('GET', '/api/contact-requests', { token: T.otherAlum });
-  check('ST-11', 'other alum cannot list it', r.status === 200 && !r.data.requests.some((x) => x.id === requestId), r);
+  check('ST-11', 'other alum cannot list it (received or sent)',
+    r.status === 200 && !r.data.requests.some((x) => x.id === requestId) && !r.data.sent.some((x) => x.id === requestId), r);
   r = await call('GET', `/api/alumni/${alumProfile.id}`, { token: T.student });
   const leaked = alumHidden.filter((f) => r.data && FIELD_NAMES[f] in r.data);
   check('ST-12', `another user's profile hides ${alumHidden.join(', ')}`, r.status === 200 && leaked.length === 0, { leaked });
@@ -208,7 +214,7 @@ async function main() {
   check('ST-27', `more than ${limit} requests in a minute -> 429 with Retry-After`,
     statuses.includes(429) && last.status === 429 && last.headers.get('retry-after') === '60', { statuses: statuses.slice(-4), last: last.status });
 
-  await sql`DELETE FROM contact_requests WHERE student_user_id IN (${STUDENT_ID}, ${STUDENT2_ID})`;
+  await sql`DELETE FROM contact_requests WHERE student_user_id IN (${STUDENT_ID}, ${STUDENT2_ID}, ${otherAlum.userId})`;
 }
 
 main()

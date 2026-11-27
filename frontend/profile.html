@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>My profile | AlumniLink</title>
+    <link rel="icon" type="image/png" href="alumnilink-badge.png">
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/profile.css" />
+    <script defer src="js/config.js"></script>
+    <script defer src="js/nav.js"></script>
+    <script defer src="js/profile-config.js"></script>
+    <script defer src="js/profile-client.js"></script>
+    <script defer src="js/profile-photo.js"></script>
+    <script defer src="js/profile.js"></script>
+    <link rel="stylesheet" href="css/theme.css" />
+    <script src="js/theme.js"></script>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1><a class="site-brand" href="index.html" aria-label="AlumniLink home">AlumniLink</a></h1>
+      <nav aria-label="Main">
+        <a href="index.html">Search</a>
+        <a href="requests.html">Contact requests</a>
+        <a href="profile.html" aria-current="page">My profile</a>
+        <a href="privacy.html">Privacy</a>
+        <button id="logout" type="button">Sign out</button>
+      </nav>
+    </header>
+    <main class="settings-page">
+      <header class="settings-heading">
+        <h2>My profile</h2>
+      </header>
+      <p class="settings-notice" id="status" role="status"></p>
+      <div class="settings-grid">
+        <section class="settings-panel profile-photo" id="profile-photo" aria-labelledby="photo-title" hidden>
+          <div class="profile-photo-stage">
+            <div class="photo-frame">
+              <span class="photo-placeholder" aria-hidden="true"></span>
+              <button class="photo-open" id="photo-open" type="button" aria-label="View profile photo" aria-haspopup="dialog" hidden disabled>
+                <img id="photo-preview" alt="" width="128" height="128" />
+              </button>
+            </div>
+          </div>
+          <div class="settings-panel-body photo-controls">
+            <h3 id="photo-title">Profile photo</h3>
+            <p id="photo-file-detail" class="settings-help">JPEG or PNG, up to 2 MB</p>
+            <form id="photo-upload">
+              <div class="settings-actions">
+                <span class="photo-picker">
+                  <span aria-hidden="true">Choose photo</span>
+                  <input id="photo-file" type="file" accept="image/jpeg,image/png" aria-label="Choose photo" disabled />
+                </span>
+                <button type="submit" disabled hidden>Upload photo</button>
+              </div>
+              <button id="remove-photo" type="button" class="settings-text-button" hidden>Remove photo</button>
+            </form>
+            <p class="settings-notice" id="photo-status" role="status"></p>
+          </div>
+          <div class="settings-panel-footer" id="photo-privacy-link" hidden>
+            <a class="settings-link" href="privacy.html#photo-visibility">Who can see my photo? <span aria-hidden="true">&#8594;</span></a>
+          </div>
+        </section>
+        <form class="settings-panel" id="profile" hidden>
+          <section class="settings-panel-body">
+            <h3>Work and education</h3>
+            <div class="profile-fields">
+              <label>Graduation year<input name="graduationYear" type="number" min="1950" required /></label>
+              <label>Company<input name="company" maxlength="100" /></label>
+              <label>Industry<input name="industry" maxlength="50" /></label>
+              <label>Location<input name="location" maxlength="100" placeholder="City, country" /></label>
+            </div>
+          </section>
+          <section class="settings-panel-body">
+            <h3>About you</h3>
+            <div class="profile-fields">
+              <label class="profile-field-wide">Bio<textarea name="bio" maxlength="500" rows="4"></textarea></label>
+              <label class="profile-field-wide">Skills<input name="skills" maxlength="1000" placeholder="e.g. Python, design, teaching" aria-describedby="skills-help" /></label>
+            </div>
+            <p id="skills-help" class="settings-help">Separate skills with commas.</p>
+          </section>
+          <section class="settings-panel-body">
+            <h3>Contact</h3>
+            <div class="profile-fields">
+              <label class="profile-field-wide">Contact email<input name="contactEmail" type="email" maxlength="254" aria-describedby="contact-help" /></label>
+            </div>
+            <p id="contact-help" class="settings-help">We share this email when you accept a contact request.</p>
+          </section>
+          <div class="settings-panel-footer">
+            <div class="settings-actions profile-actions">
+              <button type="submit">Save profile</button>
+              <button id="toggle-profile" type="button" class="secondary" hidden>Deactivate profile</button>
+            </div>
+            <p class="settings-notice" id="profile-save-status" role="status"></p>
+          </div>
+        </form>
+      </div>
+    </main>
+    <dialog id="photo-viewer" class="photo-viewer" aria-label="Profile photo">
+      <img id="photo-viewer-image" alt="Your profile photo" />
+      <form class="photo-viewer-dismiss" method="dialog">
+        <button type="submit" autofocus>
+          <span aria-hidden="true">&#8592;</span> Back to my profile
+        </button>
+      </form>
+    </dialog>
+  </body>
+</html>

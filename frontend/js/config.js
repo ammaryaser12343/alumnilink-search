@@ -1,5 +1,5 @@
 // On your laptop the page calls the local APIs; on Vercel it calls the deployed ones.
-// Replace each YOUR-...-PROJECT with the real Vercel domain after deploying (Lab 5).
+// The deployed addresses below are the three backends' Vercel domains.
 // These addresses are not secrets. Never put DATABASE_URL or TOKEN_SECRET in frontend code.
 const isLocal = ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
@@ -10,9 +10,9 @@ const API = isLocal
       admin: 'http://localhost:3003/api'
     }
   : {
-      profile: 'https://YOUR-PROFILE-PROJECT.vercel.app/api',
-      search: 'https://YOUR-SEARCH-PROJECT.vercel.app/api',
-      admin: 'https://YOUR-ADMIN-PROJECT.vercel.app/api'
+      profile: 'https://alumnilink-profile.vercel.app/api',
+      search: 'https://alumnilink-search-api.vercel.app/api',
+      admin: 'https://alumnilink-admin-api.vercel.app/api'
     };
 
 // Must match INDUSTRIES in shared/constants.js

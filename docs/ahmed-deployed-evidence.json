@@ -1,0 +1,164 @@
+{
+  "timestamp": "2026-11-22T16:47:17.994Z",
+  "environment": "Floci API Gateway and Lambda with Neon PostgreSQL",
+  "teammateServices": "Explicit HTTP test doubles for Identity status and Locations. Live teammate code is unverified.",
+  "cloudWatchDenials": 6,
+  "results": [
+    {
+      "scenario": "Gateway health",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "83d9cda2-68f4-4ff7-a8a5-ea9a25df5bad"
+    },
+    {
+      "scenario": "Missing authentication",
+      "expected": 401,
+      "actual": 401,
+      "result": "pass",
+      "requestId": "a6f6965a-cee0-4e89-9ca2-e8c5ef9483fd"
+    },
+    {
+      "scenario": "Student role denial",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "2358516a-61fc-416e-a026-e3f0a5b9bb46"
+    },
+    {
+      "scenario": "Reject client-selected owner",
+      "expected": 400,
+      "actual": 400,
+      "result": "pass",
+      "requestId": "9ede7ecb-debe-4f56-aa66-2ee18c5e06db"
+    },
+    {
+      "scenario": "Create Alumni profile",
+      "expected": 201,
+      "actual": 201,
+      "result": "pass",
+      "requestId": "548a1b26-83b6-4032-8061-a3ceb78a6670"
+    },
+    {
+      "scenario": "Cross-user privacy denial",
+      "expected": 404,
+      "actual": 404,
+      "result": "pass",
+      "requestId": "e7f03944-8e0f-4be0-a685-5040ac2b7a24"
+    },
+    {
+      "scenario": "Save visibility choices",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "435468a3-f1ce-44bf-9dfe-2ec876af1790"
+    },
+    {
+      "scenario": "Contact field cannot become directory-visible",
+      "expected": 400,
+      "actual": 400,
+      "result": "pass",
+      "requestId": "48a51fe7-3a05-43ea-b8c5-d3a543a5fbe6"
+    },
+    {
+      "scenario": "Replace skills",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "e6ee64f7-f603-4ce3-a8bb-04d08b4bef0a"
+    },
+    {
+      "scenario": "Location outage preserves profile",
+      "expected": 503,
+      "actual": 503,
+      "result": "pass",
+      "requestId": "78aa0ef9-2731-4e92-8c4f-a7bdd24fe9e5"
+    },
+    {
+      "scenario": "Read unchanged profile",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "3b6dff40-4377-41f1-b696-1866ef418e21"
+    },
+    {
+      "scenario": "Pending contact denied",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "4aea16cb-aea7-4d8c-b0d2-ce2a37653806"
+    },
+    {
+      "scenario": "Accepted contact revealed",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "5e87084f-df08-4ffc-9e99-a0bf6a8f8a20"
+    },
+    {
+      "scenario": "Different Student denied",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "60ec0244-e8f9-4e15-8da6-fb459dfd1c04"
+    },
+    {
+      "scenario": "User token cannot impersonate Search",
+      "expected": 401,
+      "actual": 401,
+      "result": "pass",
+      "requestId": "352c2ba1-ca8a-4214-8c79-d9175c817038"
+    },
+    {
+      "scenario": "Deactivate own profile",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "d477dcf5-67fa-421b-8f52-cd6cc98f587c"
+    },
+    {
+      "scenario": "Inactive profile contact denied",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "3dbb1882-da85-4d40-b08f-5bbd844e2564"
+    },
+    {
+      "scenario": "Reactivate own profile",
+      "expected": 200,
+      "actual": 200,
+      "result": "pass",
+      "requestId": "2cbbb41e-68a3-467a-92f6-0fc15b6db261"
+    },
+    {
+      "scenario": "Suspended recipient contact denied",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "e346fed8-14cd-4ce3-b8f6-067e42f3cd87"
+    },
+    {
+      "scenario": "Existing suspended token denied",
+      "expected": 403,
+      "actual": 403,
+      "result": "pass",
+      "requestId": "bc6a1823-d8ca-4372-b502-d95f29be9bea"
+    },
+    {
+      "scenario": "Identity outage fails closed",
+      "expected": 503,
+      "actual": 503,
+      "result": "pass",
+      "requestId": "1801716d-61d8-417b-9a32-79c394522188"
+    },
+    {
+      "scenario": "Restricted runtime database privileges",
+      "expected": "no password read or identity writes",
+      "actual": {
+        "read_password": false,
+        "change_identity": false
+      },
+      "result": "pass"
+    }
+  ]
+}

@@ -8,7 +8,7 @@ const router = express.Router();
 
 // Role check first (no network call), then the request limit, then ask Identity
 // if the account is still active.
-router.post('/', requireLogin, requireRole('student'), rateLimit, requireActiveAccount, controller.createContactRequest);
+router.post('/', requireLogin, requireRole('student', 'alumni'), rateLimit, requireActiveAccount, controller.createContactRequest);
 router.get('/', requireLogin, requireRole('student', 'alumni'), rateLimit, requireActiveAccount, controller.listContactRequests);
 router.patch('/:id', requireLogin, requireRole('alumni'), rateLimit, requireActiveAccount, controller.answerContactRequest);
 

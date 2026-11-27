@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlumniLink | Log in</title>
+  <link rel="icon" type="image/png" href="alumnilink-badge.png">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/identity.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <h1><a class="site-brand" href="index.html" aria-label="AlumniLink home">AlumniLink</a></h1>
+    <nav aria-label="Main">
+      <a href="login.html" aria-current="page">Log in</a>
+      <a href="register.html">Sign up</a>
+    </nav>
+  </header>
+
+  <main class="auth-main">
+    <h2>Log in</h2>
+    <p id="status" class="form-status" role="status" aria-live="polite"></p>
+
+    <form id="login-form" class="auth-form" novalidate>
+      <label>Email
+        <input type="email" id="email" autocomplete="username" maxlength="255" required>
+      </label>
+
+      <label>Password
+        <input type="password" id="password" autocomplete="current-password" maxlength="72" required>
+      </label>
+
+      <!-- Cloudflare draws the "Verify you are human" box here -->
+      <div id="turnstile-widget" class="turnstile"></div>
+
+      <div class="actions">
+        <button type="submit" id="login-button">Log in</button>
+      </div>
+      <p class="help">No account yet? <a href="register.html">Sign up</a></p>
+    </form>
+  </main>
+
+  <!-- Turnstile first, then the shared helpers, then this page's code (defer keeps the order) -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/api.js" defer></script>
+  <script src="js/turnstile.js" defer></script>
+  <script src="js/login.js" defer></script>
+</body>
+</html>

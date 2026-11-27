@@ -4,14 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AlumniLink | Contact Requests</title>
+  <link rel="icon" type="image/png" href="alumnilink-badge.png">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/theme.css">
+  <script src="js/theme.js"></script>
 </head>
 <body>
   <header class="site-header">
-    <h1>AlumniLink</h1>
+    <h1><a class="site-brand" href="index.html" aria-label="AlumniLink home">AlumniLink</a></h1>
     <nav aria-label="Main">
       <a href="index.html">Search</a>
       <a href="requests.html" aria-current="page">Contact requests</a>
+      <a href="profile.html">My profile</a>
+      <a href="privacy.html">Privacy</a>
     </nav>
   </header>
 
@@ -20,12 +25,17 @@
       <h2 id="requests-heading">Contact requests</h2>
       <p id="intro"></p>
       <p id="message" class="message" role="status" aria-live="polite"></p>
+      <!-- Alumni see two lists: requests to them, and requests they sent to other alumni -->
+      <h3 id="received-heading" class="list-heading" hidden>Requests to you</h3>
       <ul id="request-list" class="request-list"></ul>
+      <h3 id="sent-heading" class="list-heading" hidden>Requests you sent</h3>
+      <ul id="sent-list" class="request-list" hidden></ul>
     </section>
   </main>
 
   <script src="js/config.js" defer></script>
   <script src="js/api.js" defer></script>
+  <script src="js/nav.js" defer></script>
   <script src="js/requests.js" defer></script>
 </body>
 </html>

@@ -1,7 +1,10 @@
 // Contact requests page. Owner: Ammar.
 // Students see the requests they sent (and the email once accepted).
-// Alumni see the requests they received and can accept or decline them.
+// Alumni see the requests they received (to accept or decline) and the ones they sent.
 const list = document.getElementById('request-list');
+const sentList = document.getElementById('sent-list');
+const receivedHeading = document.getElementById('received-heading');
+const sentHeading = document.getElementById('sent-heading');
 const message = document.getElementById('message');
 const intro = document.getElementById('intro');
 const user = currentUser();
@@ -25,18 +28,20 @@ function statusBadge(status) {
   return badge;
 }
 
-function renderRequest(request, role) {
+// kind: 'sent' (the user asked someone) or 'received' (someone asked the user)
+function renderRequest(request, kind) {
   const card = document.createElement('li');
   card.className = 'request-card';
 
   const title = document.createElement('h3');
-  title.textContent = role === 'student' ? `To ${request.alumniName}` : `From ${request.studentName}`;
+  const from = request.senderRole === 'alumni' ? `${request.studentName} (alum)` : request.studentName;
+  title.textContent = kind === 'sent' ? `To ${request.alumniName}` : `From ${from}`;
   card.append(title, statusBadge(request.status));
 
   addLine(card, 'Sent', new Date(request.createdAt).toLocaleString());
   addLine(card, 'Message', request.message);
 
-  if (role === 'student' && request.status === 'accepted') {
+  if (kind === 'sent' && request.status === 'accepted') {
     if (request.contactEmail) {
       addLine(card, 'Contact email', request.contactEmail);
     } else if (request.contactUnavailable) {
@@ -46,7 +51,7 @@ function renderRequest(request, role) {
     }
   }
 
-  if (role === 'alumni' && request.status === 'pending') {
+  if (kind === 'received' && request.status === 'pending') {
     const actions = document.createElement('div');
     actions.className = 'actions';
     for (const [status, label] of [['accepted', 'Accept'], ['declined', 'Decline']]) {
@@ -62,6 +67,18 @@ function renderRequest(request, role) {
   return card;
 }
 
+// Fills one list with request cards, or with a short note when it is empty.
+function showList(target, requests, kind, emptyText) {
+  if (requests.length === 0) {
+    const note = document.createElement('li');
+    note.className = 'message';
+    note.textContent = emptyText;
+    target.replaceChildren(note);
+    return;
+  }
+  target.replaceChildren(...requests.map((request) => renderRequest(request, kind)));
+}
+
 async function answer(id, status) {
   message.textContent = 'Saving...';
   try {
@@ -71,7 +88,7 @@ async function answer(id, status) {
     });
     await load();
     message.textContent = status === 'accepted'
-      ? 'Accepted. The student can now see your contact email.'
+      ? 'Accepted. They can now see your contact email.'
       : 'Declined.';
   } catch (error) {
     message.textContent = error.message;
@@ -84,13 +101,22 @@ async function load() {
     return;
   }
   intro.textContent = user.role === 'alumni'
-    ? 'Students who asked for your contact details. Your email is shared only if you accept.'
+    ? 'People who asked for your contact details, and alumni you asked. Your email is shared only if you accept.'
     : 'Requests you sent to alumni. Once an alum accepts, their contact email appears here.';
 
   message.textContent = 'Loading...';
   try {
     const data = await apiRequest(`${API.search}/contact-requests`);
-    list.replaceChildren(...data.requests.map((request) => renderRequest(request, data.role)));
+    if (data.role === 'alumni') {
+      showList(list, data.requests, 'received', 'Nobody has asked you yet.');
+      showList(sentList, data.sent, 'sent', 'You have not asked anyone yet. Use Request contact on the Search page.');
+      receivedHeading.hidden = false;
+      sentHeading.hidden = false;
+      sentList.hidden = false;
+      message.textContent = '';
+      return;
+    }
+    list.replaceChildren(...data.requests.map((request) => renderRequest(request, 'sent')));
     message.textContent = data.requests.length === 0 ? 'No contact requests yet.' : '';
   } catch (error) {
     list.replaceChildren();

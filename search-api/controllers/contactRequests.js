@@ -1,6 +1,6 @@
-// Contact requests: a student asks an alum for their contact email.
-// Only students send, only the addressed alum answers, and the email is shown
-// to the student only after the alum accepts.
+// Contact requests: a student or an alum asks an alum for their contact email.
+// Students and alumni send (never to their own profile), only the addressed alum
+// answers, and the email is shown to the sender only after the alum accepts.
 const service = require('../services/contactRequestService');
 const { getProfileContact, ServiceUnavailableError } = require('../services/serviceClient');
 const { writeAuditLog } = require('../services/auditLog');
@@ -18,7 +18,7 @@ function onlyFields(body, allowed) {
   return extra ? `Unknown field: ${extra}.` : null;
 }
 
-// POST /api/contact-requests  { "alumniId": "<profile id>", "message": "..." }  Student only
+// POST /api/contact-requests  { "alumniId": "<profile id>", "message": "..." }  Students and alumni
 async function createContactRequest(req, res, next) {
   try {
     const bodyProblem = onlyFields(req.body, ['alumniId', 'message']);
@@ -37,14 +37,17 @@ async function createContactRequest(req, res, next) {
     if (!alumnus) {
       return sendError(res, 404, 'ALUMNUS_NOT_FOUND', 'Alumnus not found.');
     }
+    if (alumnus.userId === req.user.id) {
+      return sendError(res, 400, 'CANNOT_CONTACT_SELF', 'You cannot send a contact request to your own profile.');
+    }
 
-    // Limits spam: a student can wait on at most 5 answers at a time.
+    // Limits spam: a sender can wait on at most 5 answers at a time.
     // (The 429 itself is recorded by the auditDenied middleware.)
-    if (await service.countPendingFromStudent(req.user.id) >= MAX_PENDING) {
+    if (await service.countPendingFromSender(req.user.id) >= MAX_PENDING) {
       return sendError(res, 429, 'TOO_MANY_PENDING', `You already have ${MAX_PENDING} requests waiting for an answer.`);
     }
 
-    const created = await service.createRequest({ studentUserId: req.user.id, alumniProfileId: alumniId, message });
+    const created = await service.createRequest({ senderUserId: req.user.id, alumniProfileId: alumniId, message });
     if (!created) {
       return sendError(res, 409, 'REQUEST_ALREADY_PENDING', 'You already have an open request to this alum.');
     }
@@ -56,28 +59,34 @@ async function createContactRequest(req, res, next) {
   }
 }
 
-// GET /api/contact-requests  Student: requests sent. Alumni: requests received.
+// For accepted requests the caller sent, ask the Profile service for the alum's contact email.
+// If Profile is down, the list still loads and the email is marked unavailable.
+async function addContactEmails(sent, userToken) {
+  return Promise.all(sent.map(async (request) => {
+    if (request.status !== 'accepted') return request;
+    try {
+      return { ...request, contactEmail: await getProfileContact(request.alumniId, request.id, userToken) };
+    } catch (error) {
+      if (!(error instanceof ServiceUnavailableError)) throw error;
+      console.error(error.message);
+      return { ...request, contactEmail: null, contactUnavailable: true };
+    }
+  }));
+}
+
+// GET /api/contact-requests
+// Student: { role, requests } = requests sent.
+// Alumni:  { role, requests, sent } = requests received, plus requests they sent to other alumni.
 async function listContactRequests(req, res, next) {
   try {
+    const userToken = req.get('Authorization').slice('Bearer '.length).trim();
+    const sent = await addContactEmails(await service.listSentBy(req.user.id), userToken);
+
     if (req.user.role === 'alumni') {
       const received = await service.listReceivedByAlumnus(req.user.id);
-      return res.status(200).json({ role: 'alumni', requests: received });
+      return res.status(200).json({ role: 'alumni', requests: received, sent });
     }
-
-    const sent = await service.listSentByStudent(req.user.id);
-    // For accepted requests, ask the Profile service for the alum's contact email.
-    // If Profile is down, the list still loads and the email is marked unavailable.
-    const requests = await Promise.all(sent.map(async (request) => {
-      if (request.status !== 'accepted') return request;
-      try {
-        return { ...request, contactEmail: await getProfileContact(request.alumniId) };
-      } catch (error) {
-        if (!(error instanceof ServiceUnavailableError)) throw error;
-        console.error(error.message);
-        return { ...request, contactEmail: null, contactUnavailable: true };
-      }
-    }));
-    return res.status(200).json({ role: 'student', requests });
+    return res.status(200).json({ role: 'student', requests: sent });
   } catch (error) {
     return next(error);
   }

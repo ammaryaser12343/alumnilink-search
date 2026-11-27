@@ -1,18 +1,14 @@
 // Privacy helper. Owner: Ammar (Search enforces privacy on every result).
-// Removes every field the profile owner has hidden before a profile leaves the API.
-// The owner and admins still see everything.
+// Removes fields the profile owner has hidden, unless the caller grants full access.
 
 const { PRIVACY_FIELDS } = require('../../shared/constants');
 
 // profile: a plain object from the database, including profile.userId
 // hiddenFields: array of field names with is_visible = false, e.g. ['company', 'location']
-// viewer: req.user ({ id, role }) or undefined
-function applyPrivacy(profile, hiddenFields, viewer) {
-  const isOwner = viewer && viewer.id === profile.userId;
-  const isAdmin = viewer && viewer.role === 'admin';
-
+// showHidden: whether the controller authorizes a full view for this endpoint
+function applyPrivacy(profile, hiddenFields, showHidden = false) {
   const result = { ...profile };
-  if (!isOwner && !isAdmin) {
+  if (!showHidden) {
     for (const field of hiddenFields || []) {
       if (PRIVACY_FIELDS.includes(field)) {
         delete result[toCamel(field)];
